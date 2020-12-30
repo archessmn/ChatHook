@@ -1,8 +1,10 @@
 package com.github.archessmn.ChatHook.bot;
 
+import com.github.archessmn.ChatHook.bot.commands.link;
+import com.github.archessmn.ChatHook.bot.commands.ping;
+import com.github.archessmn.ChatHook.bot.commands.registerGameChatChannel;
 import com.github.archessmn.ChatHook.main;
-import com.github.archessmn.ChatHook.storage.botinfo;
-import org.bukkit.Bukkit;
+import com.github.archessmn.ChatHook.bot.commands.registerBotChannel;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.channel.TextChannel;
@@ -20,7 +22,7 @@ public class botmain {
 
     private DiscordApi api;
 
-    main plugin;
+    public static main plugin;
 
     public botmain(main instance) {
         plugin = instance;
@@ -38,8 +40,6 @@ public class botmain {
                         return null;
                     });
         }
-
-        api.addListener(new botmain.registerBotChannel());
     }
 
     public void disable() {
@@ -54,47 +54,16 @@ public class botmain {
         api = null;
     }
 
-    public static class registerBotChannel implements MessageCreateListener {
-        @Override
-        public void onMessageCreate(MessageCreateEvent event) {
-            Message message = event.getMessage();
-            TextChannel channel = event.getChannel();
-            Optional<Server> Oserver = event.getServer();
-
-            if (message.getContent().equals("/registerbotchannel") && message.getAuthor().isServerAdmin()) {
-                if (Oserver.isPresent()) {
-                    Server server = Oserver.get();
-                    botinfo.get().set(server.getIdAsString() + ".commandChannel", channel.getId());
-                    message.delete();
-                    channel.sendMessage("Set the channel for server `" + server.getName() + "` to " + channel + ".");
-                } else {
-                    message.delete();
-                    channel.sendMessage("Cannot run this command in a DM channel.");
-                }
-            } else {
-                message.delete();
-                channel.sendMessage("Only the owner of this server can run this command.");
-            }
-        }
-    }
-
-    public static class pingCommand implements MessageCreateListener {
-        @Override
-        public void onMessageCreate(MessageCreateEvent event) {
-            Message message = event.getMessage();
-            TextChannel channel = event.getChannel();
-            Optional<Server> Oserver = event.getServer();
-
-            channel.sendMessage(message.getContent());
-        }
-    }
-
     public void onConnectToDiscord(DiscordApi api) {
-
         this.api = api;
 
         getLogger().info("Connected as " + api.getYourself().getDiscriminatedName());
         getLogger().info("Invite URL: " + api.createBotInvite());
+
+        api.addListener(new registerBotChannel.registerBotChannelCommand());
+        api.addListener(new ping.pingCommand());
+        api.addListener(new registerGameChatChannel.registerGameChannelCommand());
+        api.addListener(new link.linkCommand());
 
     }
 }

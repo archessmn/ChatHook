@@ -1,17 +1,15 @@
 package com.github.archessmn.ChatHook;
 
 import com.github.archessmn.ChatHook.bot.botmain;
+import com.github.archessmn.ChatHook.commands.link;
 import com.github.archessmn.ChatHook.storage.botinfo;
+import com.github.archessmn.ChatHook.storage.playerdata;
 import net.byteflux.libby.BukkitLibraryManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class main extends JavaPlugin{
 
-    botmain api;
-
-    public main(botmain instance) {
-        api = instance;
-    }
+    public static botmain bot;
 
     @Override
     public void onEnable() {
@@ -26,10 +24,10 @@ public class main extends JavaPlugin{
             }
         });
         this.saveDefaultConfig();
-        new botmain(this);
+        new botmain(this).setApi();
         /*Run on enable*/
 
-        
+        this.getCommand("link").setExecutor(new link());
 
         //Config
         this.reloadConfig();
@@ -42,15 +40,20 @@ public class main extends JavaPlugin{
         botinfo.get().options().copyDefaults(true);
         botinfo.save();
 
+        /*Player Data*/
+        playerdata.setup();
+        playerdata.get().options().copyDefaults(true);
+        playerdata.get().addDefault("toLink", null);
+        playerdata.save();
+
 
     }
+
+    public static botmain api;
 
     public void onDisable() {
         /*Run on disable*/
 
-        /*Disable Discord Bot*/
-        if (api != null) {
-            api.disconnect();
-        }
+        new botmain(this).disable();
     }
 }
