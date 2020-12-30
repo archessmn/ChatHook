@@ -1,25 +1,48 @@
 package com.github.archessmn.ChatHook;
 
+import com.github.archessmn.ChatHook.bot.botmain;
+import com.github.archessmn.ChatHook.storage.botinfo;
+import net.byteflux.libby.BukkitLibraryManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.DiscordApiBuilder;
 
 public class main extends JavaPlugin{
 
-    private DiscordApi api;
+    botmain api;
+
+    public main(botmain instance) {
+        api = instance;
+    }
 
     @Override
     public void onEnable() {
+        super.onEnable();
+        BukkitLibraryManager manager = new BukkitLibraryManager(this);
+        manager.addMavenCentral();
+        manager.fromGeneratedResource(this.getResource("AzimDP.json")).forEach(library->{
+            try {
+                manager.loadLibrary(library);
+            }catch(RuntimeException e) {
+                getLogger().info("Skipping download of\""+library+"\", it either doesnt exist or has no .jar file");
+            }
+        });
+        this.saveDefaultConfig();
+        new botmain(this);
         /*Run on enable*/
-        new DiscordApiBuilder()
-                .setToken("NzcxNDgxMjYyMjMzODc4NTY4.X5sv6g.Dhqsc1rLCz6v1DyhvqK2frey84k")
-                .login()
-                .thenAccept(this::onConnectToDiscord)
-                .exceptionally(error -> {
-                    getLogger().warning("Failed to connect to Discord! Disabling plugin!");
-                    getPluginLoader().disablePlugin(this);
-                    return null;
-                });
+
+        
+
+        //Config
+        this.reloadConfig();
+        this.saveDefaultConfig();
+        this.saveConfig();
+        this.getConfig();
+
+        /*Bot Config*/
+        botinfo.setup();
+        botinfo.get().options().copyDefaults(true);
+        botinfo.save();
+
+
     }
 
     public void onDisable() {
@@ -28,16 +51,6 @@ public class main extends JavaPlugin{
         /*Disable Discord Bot*/
         if (api != null) {
             api.disconnect();
-            api = null;
         }
-    }
-
-    private void onConnectToDiscord(DiscordApi api) {
-
-        this.api = api;
-
-        getLogger().info("Connected as " + api.getYourself().getDiscriminatedName());
-        getLogger().info("Invite URL: " + api.createBotInvite());
-
     }
 }

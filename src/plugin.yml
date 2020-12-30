@@ -1,5 +1,5 @@
 name: ChatHook
 version: 1.0.0
 author: archessmn
-main: com.github.archessmn.ShrinePlugin.main
+main: com.github.archessmn.ChatHook.main
 api-version: 1.16

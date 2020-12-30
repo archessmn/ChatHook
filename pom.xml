@@ -17,6 +17,12 @@
                     <include>plugin.yml</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>META-INF/</directory>
+                <includes>
+                    <include>services/org.javacord.api.util.internal.DelegateFactoryDelegate</include>
+                </includes>
+            </resource>
         </resources>
         <plugins>
             <plugin>
@@ -58,6 +64,29 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.github.Azim</groupId>
+                <artifactId>azimdp-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <configuration>
+                    <ignoreVersions>true</ignoreVersions>
+                    <beautify>true</beautify>
+                    <path>AzimDP.json</path>
+                    <excludes>
+                        <exclude>groupId:artifactId:version</exclude>
+                        <exclude>com.github.Azim.libby:libby-bukkit:ignored</exclude>
+                        <exclude>org.spigotmc:spigot-api:ignored</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-dependency-list</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -65,6 +94,10 @@
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -79,9 +112,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.3-R0.1-SNAPSHOT</version>
-            <!-- <version>1.16.4-R0.1-SNAPSHOT</version> -->
+            <version>1.16.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Azim.libby</groupId>
+            <artifactId>libby-bukkit</artifactId>
+            <version>8107184232</version>
         </dependency>
     </dependencies>
 </project>
