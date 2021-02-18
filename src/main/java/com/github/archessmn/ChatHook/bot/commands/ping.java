@@ -16,7 +16,7 @@ public class ping {
             TextChannel channel = event.getChannel();
             Optional<Server> Oserver = event.getServer();
 
-            if (message.getContent() == "/ping") {
+            if (message.getContent().equals("/ping")) {
                 channel.sendMessage("Pong!");
             }
         }

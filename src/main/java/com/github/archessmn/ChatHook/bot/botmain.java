@@ -1,17 +1,13 @@
 package com.github.archessmn.ChatHook.bot;
 
-import com.github.archessmn.ChatHook.bot.commands.link;
-import com.github.archessmn.ChatHook.bot.commands.ping;
-import com.github.archessmn.ChatHook.bot.commands.registerGameChatChannel;
+import com.github.archessmn.ChatHook.bot.commands.*;
+import com.github.archessmn.ChatHook.events.onChat;
 import com.github.archessmn.ChatHook.main;
-import com.github.archessmn.ChatHook.bot.commands.registerBotChannel;
+import com.github.archessmn.ChatHook.storage.botinfo;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.listener.message.MessageCreateListener;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -46,16 +42,27 @@ public class botmain {
         if (this.api != null) {
             this.api.disconnect();
             this.api = null;
+            getLogger().warning("Disabling Discord Bot");
         }
-    }
-
-    public void disconnect() {
-        api.disconnect();
-        api = null;
     }
 
     public void onConnectToDiscord(DiscordApi api) {
         this.api = api;
+
+        for (String Sserver: botinfo.get().getConfigurationSection("").getKeys(true)) {
+            Optional<Server> Oserver = api.getServerById(Sserver);
+            if (Oserver.isPresent()) {
+                Server server = Oserver.get();
+
+                Optional<TextChannel> Ochannel = api.getTextChannelById(botinfo.get().getString(Sserver + ".chatChannel"));
+                if (Ochannel.isPresent()) {
+                    TextChannel channel = Ochannel.get();
+                    channel.sendMessage(":white_check_mark: **Server Has Somehow Started**");
+                }
+            }
+        }
+
+        new onChat(this.api);
 
         getLogger().info("Connected as " + api.getYourself().getDiscriminatedName());
         getLogger().info("Invite URL: " + api.createBotInvite());
@@ -64,6 +71,11 @@ public class botmain {
         api.addListener(new ping.pingCommand());
         api.addListener(new registerGameChatChannel.registerGameChannelCommand());
         api.addListener(new link.linkCommand());
+        api.addListener(new role.roleCommand());
 
+    }
+
+    public DiscordApi getApi() {
+        return this.api;
     }
 }

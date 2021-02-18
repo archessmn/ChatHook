@@ -20,25 +20,32 @@ public class link {
             if (Oserver.isPresent()) {
                 Server server = Oserver.get();
                 String[] args = message.getContent().split(" ");
-                List<String> Oargs = new ArrayList<String>(Arrays.asList(args));
-                Oargs.remove(0);
-                args = Oargs.toArray(new String[0]);
+                if (args[0].equals("/link")) {
+                    List<String> Oargs = new ArrayList<String>(Arrays.asList(args));
+                    Oargs.remove(0);
+                    args = Oargs.toArray(new String[0]);
 
-                if (args.length == 1) {
-                    message.delete();
+                    if (args.length == 1) {
+                        message.delete();
 
-                    if (Objects.requireNonNull(playerdata.get().getConfigurationSection("toLink")).getKeys(true).contains(args[1])) {
-                        String minecraftUUID = playerdata.get().getString("toLink." + args[1]);
-                        String discordUUID = message.getAuthor().getIdAsString();
-                        playerdata.get().set(minecraftUUID + ".discordId", discordUUID);
-                        channel.sendMessage("Linked your discord account to your minecraft account, I hope!");
+                        for (String s : playerdata.get().getConfigurationSection("toLink").getKeys(false)) {
+                            if (s.equals(args[0])) {
+                                String minecraftUUID = playerdata.get().getString("toLink." + args[0]);
+                                String discordUUID = message.getAuthor().getIdAsString();
+                                playerdata.get().set(minecraftUUID + ".discordId", discordUUID);
+                                playerdata.get().set("toLink." + args[0], null);
+                                channel.sendMessage("Linked your discord account to your minecraft account, I hope!");
+                                playerdata.save();
+                                return;
+                            }
+                        }
+                        channel.sendMessage("Could not find a link ID matching your input, please make sure you copy the ID from the server.");
+
+                    } else {
+                        message.delete();
+                        channel.sendMessage("Incorrect number of arguments.");
                     }
-
-                } else {
-                    message.delete();
-                    channel.sendMessage("Incorrect number of arguments.");
                 }
-
             }
         }
     }

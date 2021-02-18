@@ -2,12 +2,21 @@ package com.github.archessmn.ChatHook;
 
 import com.github.archessmn.ChatHook.bot.botmain;
 import com.github.archessmn.ChatHook.commands.link;
+import com.github.archessmn.ChatHook.events.onChat;
+import com.github.archessmn.ChatHook.events.onJoin;
 import com.github.archessmn.ChatHook.storage.botinfo;
 import com.github.archessmn.ChatHook.storage.playerdata;
+import com.github.archessmn.ChatHook.storage.roledata;
 import net.byteflux.libby.BukkitLibraryManager;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.javacord.api.DiscordApi;
+
+import java.util.Objects;
 
 public class main extends JavaPlugin{
+
+    private DiscordApi botapi;
 
     public static botmain bot;
 
@@ -26,8 +35,14 @@ public class main extends JavaPlugin{
         this.saveDefaultConfig();
         new botmain(this).setApi();
         /*Run on enable*/
+        PluginManager pm = getServer().getPluginManager();
 
-        this.getCommand("link").setExecutor(new link());
+        pm.registerEvents(new onChat(this), this);
+        pm.registerEvents(new onJoin(this), this);
+
+
+        Objects.requireNonNull(this.getCommand("link")).setExecutor(new link());
+
 
         //Config
         this.reloadConfig();
@@ -44,6 +59,11 @@ public class main extends JavaPlugin{
         playerdata.setup();
         playerdata.get().options().copyDefaults(true);
         playerdata.get().addDefault("toLink", null);
+        playerdata.save();
+
+        /*Role Data*/
+        roledata.setup();
+        roledata.get().options().copyDefaults(true);
         playerdata.save();
 
 

@@ -24,6 +24,7 @@ public class registerBotChannel {
                         botinfo.get().set(server.getIdAsString() + ".commandChannel", channel.getId());
                         message.delete();
                         channel.sendMessage("Set the channel for server `" + server.getName() + "` to " + channel + ".");
+                        botinfo.save();
                     } else {
                         message.delete();
                         channel.sendMessage("Cannot run this command in a DM channel.");
